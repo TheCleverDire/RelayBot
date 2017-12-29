@@ -1,0 +1,24 @@
+{
+  "name": "relaybot",
+  "version": "1.0.0",
+  "description": "Cross-network and cross-channel IRC relay bot",
+  "main": "bot.js",
+  "dependencies": {
+    "chalk": "^2.3.0",
+    "irc": "github:matrix-org/node-irc"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ohnx/RelayBot.git"
+  },
+  "author": "ohnx",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ohnx/RelayBot/issues"
+  },
+  "homepage": "https://github.com/ohnx/RelayBot#readme"
+}

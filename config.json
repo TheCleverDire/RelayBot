@@ -1,0 +1,49 @@
+{
+  "bot": {
+    "connections": [
+      {
+        "name":"Freenode",
+        "host":"irc.freenode.net",
+        "port": 6697,
+        "secure": true,
+        "autoRejoin": true,
+        "floodProtection": true,
+        "nick":"ohnx-hub",
+        "userName":"relay",
+        "realName":"Relay Bot https://github.com/ohnx/relaybot",
+        "channels": [
+          "##ohnx",
+          "##mahjong"
+        ]
+      },
+      {
+        "name":"OFTC",
+        "host":"irc.oftc.net",
+        "port": 6697,
+        "secure": true,
+        "autoRejoin": true,
+        "floodProtection": true,
+        "nick":"ohnx-hub",
+        "userName":"relay",
+        "realName":"Relay Bot https://github.com/ohnx/relaybot",
+        "channels": [
+          "#ohnx"
+        ]
+      },
+      {
+        "name":"QuakeNet",
+        "host":"irc.quakenet.org",
+        "port": 6667,
+        "secure": false,
+        "autoRejoin": true,
+        "floodProtection": true,
+        "nick":"ohnx-hub",
+        "userName":"relay",
+        "realName":"Relay Bot https://github.com/ohnx/relaybot",
+        "channels": [
+          "#ohnx"
+        ]
+      }
+    ]
+  }
+}
