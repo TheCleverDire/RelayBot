@@ -8,6 +8,7 @@ const version = 'v1.0.0';
 const CONFIG_FILE = 'config.json';
 
 // global variables
+var config = {};
 var irc_conns = {};
 var updateMonitor;
 
@@ -38,7 +39,7 @@ function updateConfig(error, data) {
   }
 
   logger.info('Attemping to parse updated config');
-  try {
+  //try {
     var config_new = JSON.parse(data);
 
     // update irc connections
@@ -66,10 +67,32 @@ function updateConfig(error, data) {
         // queue a connection to the server
         queued_connections.push(irc_conns_new[irc_conns_new_keys[i]]);
       } else {
-        // existing one, don't bother updating
-        // TODO: check if channels are updated, etc.
-        // For now, you will need to delete the server config then add it back
-        // to change the channels
+        // diff the channels
+        var channels_new = irc_conns_new[irc_conns_new_keys[i]].channels.sort();
+        var channels_old = irc_conns[irc_conns_keys[i]].channels.sort();
+        console.log('old channels: ' + JSON.stringify(channels_old));
+        console.log('new channels: ' + JSON.stringify(channels_new));
+
+        // first the gained channels
+        for (var j = 0; j < channels_new.length; j++) {
+          // new one was found in array
+          if (channels_old.indexOf(channels_new[j]) < 0) {
+            logger.info('Joining channel ' + channels_new[j] + ' on IRC network ' + irc_conns_new_keys[i]);
+            irc_conns[irc_conns_keys[i]].connection.join(channels_new[j]);
+            irc_conns[irc_conns_keys[i]].channels.push(channels_new[j]);
+          }
+        }
+
+        // now the removed channels
+        for (var j = 0; j < channels_old.length; j++) {
+          // old one was lost
+          if (channels_new.indexOf(channels_old[j]) < 0) {
+            logger.info('Parting channel ' + channels_old[j] + ' on IRC network ' + irc_conns_new_keys[i]);
+            irc_conns[irc_conns_keys[i]].connection.part(channels_old[j], 'Goodbye!');
+            irc_conns[irc_conns_keys[i]].channels = 
+            irc_conns[irc_conns_keys[i]].channels.filter(e => e !== channels_old[j]);
+          }
+        }
       }
     }
 
@@ -102,9 +125,15 @@ function updateConfig(error, data) {
     }
 
     logger.info('Updated config');
-  } catch (e) {
-    logger.error('Failed to parse updated config: ' + e);
-  }
+    config = config_new;
+  //} catch (e) {
+  //  logger.error('Failed to parse updated config: ' + e);
+  //}
+}
+
+function noping(str) {
+  // insert zero width space to prevent pings
+  return str.substring(0, 1) + '\u200B' + str.substring(1, str.length);
 }
 
 // code that is called to broadcast a message
@@ -113,6 +142,10 @@ function broadcast_message(msg, src) {
     src = {server: "Broadcast", channel: "All", user: "Admin"};
     msg = '[Broadcast] ' + msg;
   } else {
+    if ('no_ping' in config && config.no_ping) {
+      src.user = noping(src.user);
+      src.channel = noping(src.channel);
+    }
     msg = '[' + src.server + '' + src.channel + '] <' + src.user + '> ' + msg;
   }
 
@@ -125,7 +158,7 @@ function broadcast_message(msg, src) {
       try {
         irc_conns[conn_key].connection.say(irc_conns[conn_key].channels[j], msg);
       } catch (e) {
-        logger.warn('Failed to broadcast to IRC: ' + e);
+        logger.warn('Failed to broadcast to IRC network ' + conn_key + ': ' + e);
       }
     }
   }

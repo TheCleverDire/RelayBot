@@ -10,7 +10,7 @@ module.exports = {
   connectOpts: function(opts, callback_msg) {
     // TODO: sanity check on opts
     var client = new irc.Client(opts.host, opts.nick, opts);
-    client.addListener('error', function(msg) {logger.error(opts.name + ': ' + msg)});
+    client.addListener('error', function(msg) {logger.error('Failed to send message to ' + opts.name + ': ' + msg)});
     client.addListener('registered', function(msg) {
       // nickserv auth
       if ('nickserv' in opts) {
