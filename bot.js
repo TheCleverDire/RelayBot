@@ -70,8 +70,6 @@ function updateConfig(error, data) {
         // diff the channels
         var channels_new = irc_conns_new[irc_conns_new_keys[i]].channels.sort();
         var channels_old = irc_conns[irc_conns_keys[i]].channels.sort();
-        console.log('old channels: ' + JSON.stringify(channels_old));
-        console.log('new channels: ' + JSON.stringify(channels_new));
 
         // first the gained channels
         for (var j = 0; j < channels_new.length; j++) {
@@ -132,8 +130,8 @@ function updateConfig(error, data) {
 }
 
 function noping(str) {
-  // insert zero width space to prevent pings
-  return str.substring(0, 1) + '\u200B' + str.substring(1, str.length);
+  // insert zero width space to prevent pings (allow custom configuration of what to insert)
+  return str.substring(0, 3) + (config.bot.no_ping == true ? '\u200B' : config.bot.no_ping) + str.substring(3, str.length);
 }
 
 // code that is called to broadcast a message
@@ -142,11 +140,13 @@ function broadcast_message(msg, src) {
     src = {server: "Broadcast", channel: "All", user: "Admin"};
     msg = '[Broadcast] ' + msg;
   } else {
-    if ('no_ping' in config && config.no_ping) {
-      src.user = noping(src.user);
-      src.channel = noping(src.channel);
+    var user = src.user;
+    var channel = src.channel;
+    if ('no_ping' in config.bot && config.bot.no_ping) {
+      user = noping(user);
+      channel = noping(channel);
     }
-    msg = '[' + src.server + '' + src.channel + '] <' + src.user + '> ' + msg;
+    msg = '[' + src.server + '' + channel + '] <' + user + '> ' + msg;
   }
 
   for (var conn_key in irc_conns) {
